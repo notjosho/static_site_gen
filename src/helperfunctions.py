@@ -163,7 +163,7 @@ def block_to_block_type(text):
     
   [is_type_ordered_list, list_text_ordered_list] = match_ordered_list(text)
   if is_type_ordered_list:
-    return TextTypeMarkdown.ORDERED_LIST, list_text_ordered_list
+    return TextTypeMarkdown.ORDERED_LIST_ITEM, list_text_ordered_list
 
   return TextTypeMarkdown.PARAGRAPH, text
 
@@ -217,6 +217,18 @@ def list_blocks_to_html_nodes(list_blocks_text_nodes):
         html_node_list_parent = HTMLNode()
         list_counter = 0
         continue
+
+    if text_node.text_type == TextType.ORDERED_LIST_ITEM:
+      if list_counter == 0:
+        html_node_list_parent.tag = 'ol'
+        list_counter += 1
+      else:
+        html_node_list_parent.children.append(text_node_to_html_node(text_node))
+      if index + 1 < len(list_blocks_text_nodes) and list_blocks_text_nodes[index + 1].text_type != TextType.ORDERED_LIST_ITEM:
+        html_nodes.append(html_node_list_parent)
+        html_node_list_parent = HTMLNode()
+        list_counter = 0
+        continue
     
     print('-->appended')
     html_nodes.append(text_node_to_html_node(text_node))
@@ -258,6 +270,9 @@ def markdown_to_text_node(markdown_tuple):
   
   if markdown_type == TextTypeMarkdown.UNORDERED_LIST_ITEM:
     return TextNode(markdown_text, TextType.UNORDERED_LIST_ITEM)
+  
+  if markdown_type == TextTypeMarkdown.ORDERED_LIST_ITEM:
+    return TextNode(markdown_text, TextType.ORDERED_LIST_ITEM)
    
   return TextNode(markdown_text, TextType.TEXT)
 
@@ -275,6 +290,8 @@ def text_node_to_html_node(text_node):
     case TextType.CODE:
       return LeafNode("code", text_node.text)
     case TextType.UNORDERED_LIST_ITEM:
+      return LeafNode("li", text_node.text)
+    case TextType.ORDERED_LIST_ITEM:
       return LeafNode("li", text_node.text)
     case TextType.LINK:
       return LeafNode("a", text_node.text, {"href": text_node.url})

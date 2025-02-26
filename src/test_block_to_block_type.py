@@ -20,7 +20,7 @@ class TestBlockToBlockType(unittest.TestCase):
                       TextTypeMarkdown.UNORDERED_LIST_ITEM, 
                       TextTypeMarkdown.UNORDERED_LIST_ITEM, 
                       TextTypeMarkdown.UNORDERED_LIST_ITEM, 
-                      TextTypeMarkdown.ORDERED_LIST]
+                      TextTypeMarkdown.ORDERED_LIST_ITEM]
 
     for i in range(len(text_list)):
       [type, value] = block_to_block_type(text_list[i])

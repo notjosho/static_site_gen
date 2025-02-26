@@ -9,6 +9,7 @@ class TextType(Enum):
   IMAGE = "images"
   HEADING = "heading"
   UNORDERED_LIST_ITEM = "unordered_list_item"
+  ORDERED_LIST_ITEM = "ordered_list_item"
 
 class TextNode:
   def __init__(self, text: str, text_type: TextType, url=None):
@@ -31,7 +32,7 @@ class TextTypeMarkdown(Enum):
   CODE = "code"
   QUOTE = "quote"
   UNORDERED_LIST_ITEM = "unordered_list_item"
-  ORDERED_LIST = "ordered_list"
+  ORDERED_LIST_ITEM = "ordered_list"
   LINK = "link"
   IMAGE = "image"
   ITALICS = "italics"
