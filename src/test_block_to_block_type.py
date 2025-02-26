@@ -17,9 +17,9 @@ class TestBlockToBlockType(unittest.TestCase):
     expected_types = [TextTypeMarkdown.PARAGRAPH, 
                       TextTypeMarkdown.CODE, 
                       TextTypeMarkdown.QUOTE, 
-                      TextTypeMarkdown.UNORDERED_LIST, 
-                      TextTypeMarkdown.UNORDERED_LIST, 
-                      TextTypeMarkdown.UNORDERED_LIST, 
+                      TextTypeMarkdown.UNORDERED_LIST_ITEM, 
+                      TextTypeMarkdown.UNORDERED_LIST_ITEM, 
+                      TextTypeMarkdown.UNORDERED_LIST_ITEM, 
                       TextTypeMarkdown.ORDERED_LIST]
 
     for i in range(len(text_list)):

@@ -1,9 +1,9 @@
-from helperfunctions import block_to_block_type, extract_markdown_images, extract_markdown_links, markdown_to_blocks, separate_text_based_on_markdown, split_nodes_delimiter, split_nodes_images, split_nodes_link
+from helperfunctions import markdown_to_html_node, markdown_to_list
 from htmlnode import HTMLNode
-from leafnode import LeafNode
 from parentnode import ParentNode
-from textnode import TextNode, TextType
+from textnode import TextNode
 from helper_vars import markdown
+from helper_text import markdown_text
 
 def main():
   # text_node = TextNode("This is a text node", TextType.BOLD, "https://.boot.dev")
@@ -90,27 +90,7 @@ def main():
 
   # print('<---block_to_block_type')
 
-  text_list = ['- asdf\n* asdf2\n* asdf3\n- some']
-
-  block_to_block_type(text_list[0])
-
-
-def text_node_to_html_node(text_node):
-  match(text_node.text_type):
-    case TextType.TEXT:
-      return LeafNode("p", text_node.text)
-    case TextType.BOLD:
-      return LeafNode("b", text_node.text)
-    case TextType.ITALIC:
-      return LeafNode("i", text_node.text)
-    case TextType.CODE:
-      return LeafNode("code", text_node.text)
-    case TextType.LINK:
-      return LeafNode("a", text_node.text, {"href": text_node.url})
-    case TextType.IMAGE:
-      return LeafNode("img", text_node.text, {"src": text_node.url, "alt": text_node.text})
-    case _:
-      raise ValueError(f"Invalid text type: {text_node.text_type}")
+  markdown_to_html_node(markdown_text)
 
 
 if __name__ == '__main__':
