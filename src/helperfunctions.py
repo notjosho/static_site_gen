@@ -191,7 +191,12 @@ def markdown_to_html_node(markdown_text):
     print(type[0])
     
     for text in blocks:
-      tuple_block = (type[0], text)
+      text_cleanedup = block_to_block_type(text)
+      tuple_block = (type[0], text_cleanedup[1])
+      if type[0] == TextTypeMarkdown.ORDERED_LIST_ITEM:
+        ordered_list_item_text = match_text_regex_list(text, r"^\d+\.\s(.*)")
+        print(ordered_list_item_text)
+        tuple_block = (type[0], ordered_list_item_text[1])
       list_blocks_text_nodes.append(markdown_to_text_node(tuple_block))
     # for text in blocks:
     #   print(f"----->text: '{text}'")
@@ -223,43 +228,31 @@ def markdown_to_html_node(markdown_text):
 
 def list_blocks_to_html_nodes(list_blocks_text_nodes):
   html_nodes = []
+  html_node_parent = None
   list_counter = 0
-  html_node_list_parent = HTMLNode()
-  html_node_list_parent.children = []
-  
-  ## unordered list items handling
+  list_type_map = {
+    TextType.UNORDERED_LIST_ITEM: 'ul',
+    TextType.ORDERED_LIST_ITEM: 'ol'
+  }
+
   for index, text_node in enumerate(list_blocks_text_nodes):
-    if text_node.text_type == TextType.UNORDERED_LIST_ITEM:
+    current_type = text_node.text_type
+
+    if current_type in list_type_map:
       if list_counter == 0:
-        html_node_list_parent.tag = 'ul'
+        html_node_parent = HTMLNode()
+        html_node_parent.tag = list_type_map[current_type]
+        html_node_parent.children = []
         list_counter += 1
-      else:
-        html_node_list_parent.children.append(text_node_to_html_node(text_node))
-        print('----------->html_node_list_parent.children')
-        print(html_node_list_parent.children)
-      if index + 1 < len(list_blocks_text_nodes) and list_blocks_text_nodes[index + 1].text_type != TextType.UNORDERED_LIST_ITEM:
-        html_nodes.append(html_node_list_parent)
-        html_node_list_parent = HTMLNode()
-        html_node_list_parent.children = []
-        list_counter = 0
-      continue
-    
-    if text_node.text_type == TextType.ORDERED_LIST_ITEM:
-      if list_counter == 0:
-        html_node_list_parent.tag = 'ol'
-        list_counter += 1
-      else:
-        html_node_list_parent.children.append(text_node_to_html_node(text_node))
-        print('----------->html_node_list_parent.children')
-        print(html_node_list_parent.children)
-      if index + 1 < len(list_blocks_text_nodes) and list_blocks_text_nodes[index + 1].text_type != TextType.ORDERED_LIST_ITEM:
-        html_nodes.append(html_node_list_parent)
-        html_node_list_parent = HTMLNode()
-        html_node_list_parent.children = []
+      html_node_parent.children.append(text_node_to_html_node(text_node))
+
+      if (index + 1 < len(list_blocks_text_nodes) and 
+        list_blocks_text_nodes[index + 1].text_type != current_type):
+        html_nodes.append(html_node_parent)
+        html_node_parent = None
         list_counter = 0
       continue
 
-    print('-->appended')
     html_nodes.append(text_node_to_html_node(text_node))
 
     print('---------------------------->separate_text_based_on_markdown(html_node.value)')
