@@ -135,7 +135,6 @@ def match_text_regex_list(text, regex):
   return True, list_text[0]
 
 def block_to_block_type(text):
-  # TODO: add bold italic
   print('----->block_to_block_type')
   print(text)
   list_separate_text_nodes = separate_text_based_on_markdown(text)
@@ -161,8 +160,13 @@ def block_to_block_type(text):
     print(list_text_unordered_list)
     return TextTypeMarkdown.UNORDERED_LIST_ITEM, list_text_unordered_list
     
+
+  print('###########################text')
+  print(text)
   [is_type_ordered_list, list_text_ordered_list] = match_ordered_list(text)
   if is_type_ordered_list:
+    print('******--------->ordered_list')
+    print(list_text_ordered_list)
     return TextTypeMarkdown.ORDERED_LIST_ITEM, list_text_ordered_list
 
   return TextTypeMarkdown.PARAGRAPH, text
@@ -170,23 +174,44 @@ def block_to_block_type(text):
 def markdown_to_list(markdown_text):
   return markdown_text.split('\n\n')
 
+def get_index_from_ordered_list_item(text):
+  digit = match_text_regex_list(text, r"^\d+\.\s")
+  print(digit)
+
 def markdown_to_html_node(markdown_text):
   markdown_list = markdown_to_list(markdown_text)
 
   list_blocks_text_nodes = []
   for mark_down_text in markdown_list:
+    type = block_to_block_type(mark_down_text)
     blocks = markdown_to_blocks(mark_down_text)
     print("blocks")
     print(blocks)
+    print("type")
+    print(type[0])
+    
     for text in blocks:
-      print(f"----->text: '{text}'")
-      markdown_block = block_to_block_type(text)
+      tuple_block = (type[0], text)
+      list_blocks_text_nodes.append(markdown_to_text_node(tuple_block))
+    # for text in blocks:
+    #   print(f"----->text: '{text}'")
+    #   markdown_block = block_to_block_type(text)
 
+    #   print("markdown_block")
+    #   print(markdown_block)
 
-      print("markdown_block")
-      print(markdown_block)
-      text_node = markdown_to_text_node(markdown_block)
-      list_blocks_text_nodes.append(text_node)
+    #   print(f'i: {i}')
+    #   if markdown_block[0] == TextTypeMarkdown.ORDERED_LIST_ITEM:
+    #     if i > 0 and list_blocks_text_nodes[i - 1].text_type == TextTypeMarkdown.ORDERED_LIST_ITEM:
+    #       print('list_blocks_text_nodes[i - 1]')
+    #     print('---------->ORDERED_LIST_ITEM')
+
+    #   text_node = markdown_to_text_node(markdown_block)
+    #   print('text_node')
+    #   print(text_node)
+    
+    #   list_blocks_text_nodes.append(text_node)
+    #   i += 1
 
   print('list_blocks_text_nodes')
   print(list_blocks_text_nodes)
@@ -196,15 +221,13 @@ def markdown_to_html_node(markdown_text):
   # TODO: convert to HTML Nodes
   list_blocks_to_html_nodes(list_blocks_text_nodes)
 
-def convert_to_list_parent_html():
-  pass
-
-
 def list_blocks_to_html_nodes(list_blocks_text_nodes):
   html_nodes = []
   list_counter = 0
   html_node_list_parent = HTMLNode()
   html_node_list_parent.children = []
+  
+  ## unordered list items handling
   for index, text_node in enumerate(list_blocks_text_nodes):
     if text_node.text_type == TextType.UNORDERED_LIST_ITEM:
       if list_counter == 0:
@@ -212,28 +235,36 @@ def list_blocks_to_html_nodes(list_blocks_text_nodes):
         list_counter += 1
       else:
         html_node_list_parent.children.append(text_node_to_html_node(text_node))
+        print('----------->html_node_list_parent.children')
+        print(html_node_list_parent.children)
       if index + 1 < len(list_blocks_text_nodes) and list_blocks_text_nodes[index + 1].text_type != TextType.UNORDERED_LIST_ITEM:
         html_nodes.append(html_node_list_parent)
         html_node_list_parent = HTMLNode()
+        html_node_list_parent.children = []
         list_counter = 0
-        continue
-
+      continue
+    
     if text_node.text_type == TextType.ORDERED_LIST_ITEM:
       if list_counter == 0:
         html_node_list_parent.tag = 'ol'
         list_counter += 1
       else:
         html_node_list_parent.children.append(text_node_to_html_node(text_node))
+        print('----------->html_node_list_parent.children')
+        print(html_node_list_parent.children)
       if index + 1 < len(list_blocks_text_nodes) and list_blocks_text_nodes[index + 1].text_type != TextType.ORDERED_LIST_ITEM:
         html_nodes.append(html_node_list_parent)
         html_node_list_parent = HTMLNode()
+        html_node_list_parent.children = []
         list_counter = 0
-        continue
-    
+      continue
+
     print('-->appended')
     html_nodes.append(text_node_to_html_node(text_node))
 
     print('---------------------------->separate_text_based_on_markdown(html_node.value)')
+
+
 
   print('------>html_nodes')
   print(html_nodes)
@@ -241,8 +272,25 @@ def list_blocks_to_html_nodes(list_blocks_text_nodes):
   print('html_nodes2')
   print([text_node_to_html_node(text_node) for text_node in list_blocks_text_nodes])
 
+  print(wrapper_html_nodes_to_tags(html_nodes))
+
   return list_blocks_text_nodes
 
+def html_nodes_to_html_tags(node):
+  if not node.children:
+    return f'<{node.tag}>{node.value}</{node.tag}>'
+  
+  children_html = ''
+  for child in node.children:
+    children_html += html_nodes_to_html_tags(child)
+
+  return f'<{node.tag}>{children_html}</{node.tag}>'
+
+def wrapper_html_nodes_to_tags(html_nodes):
+  tags = ''
+  for node in html_nodes:
+    tags += html_nodes_to_html_tags(node)
+  return f'<div>{tags}</div>'
 
 def markdown_to_text_node(markdown_tuple):
   [markdown_type, markdown_text] = markdown_tuple 

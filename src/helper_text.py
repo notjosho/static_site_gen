@@ -1,11 +1,12 @@
 markdown_text = '''- Item 1
-* Item 2 **bold**
-* Item 3
+- Item 2 **bold**
+- Item 3
 - Item 4
 
-1. ordered_1
-2. ordered_2
-3. ordered_3
+1. Item 5
+2. Item 6
+3. Item 2
+4. Item 7
 
 Plain text paragraph here.
 
