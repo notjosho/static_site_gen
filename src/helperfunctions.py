@@ -199,12 +199,21 @@ def markdown_to_html_node(markdown_text):
   print('list_blocks_text_nodes')
   print(list_blocks_text_nodes)
 
-  
+
 
   # TODO: validate for unordered lists
 
   # TODO: convert to HTML Nodes
   list_blocks_to_html_nodes(list_blocks_text_nodes)
+
+
+def text_to_children(text):
+  text_nodes = separate_text_based_on_markdown(text)
+  html_nodes = []
+  for text_node in text_nodes:
+    html_nodes.append(text_node_to_html_node(text_node))
+  return html_nodes
+
 
 def list_blocks_to_html_nodes(list_blocks_text_nodes):
   html_nodes = []
