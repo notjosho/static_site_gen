@@ -185,41 +185,21 @@ def markdown_to_html_node(markdown_text):
   for mark_down_text in markdown_list:
     type = block_to_block_type(mark_down_text)
     blocks = markdown_to_blocks(mark_down_text)
-    print("blocks")
-    print(blocks)
-    print("type")
-    print(type[0])
     
     for text in blocks:
       text_cleanedup = block_to_block_type(text)
       tuple_block = (type[0], text_cleanedup[1])
+
       if type[0] == TextTypeMarkdown.ORDERED_LIST_ITEM:
         ordered_list_item_text = match_text_regex_list(text, r"^\d+\.\s(.*)")
-        print(ordered_list_item_text)
         tuple_block = (type[0], ordered_list_item_text[1])
+
       list_blocks_text_nodes.append(markdown_to_text_node(tuple_block))
-    # for text in blocks:
-    #   print(f"----->text: '{text}'")
-    #   markdown_block = block_to_block_type(text)
-
-    #   print("markdown_block")
-    #   print(markdown_block)
-
-    #   print(f'i: {i}')
-    #   if markdown_block[0] == TextTypeMarkdown.ORDERED_LIST_ITEM:
-    #     if i > 0 and list_blocks_text_nodes[i - 1].text_type == TextTypeMarkdown.ORDERED_LIST_ITEM:
-    #       print('list_blocks_text_nodes[i - 1]')
-    #     print('---------->ORDERED_LIST_ITEM')
-
-    #   text_node = markdown_to_text_node(markdown_block)
-    #   print('text_node')
-    #   print(text_node)
-    
-    #   list_blocks_text_nodes.append(text_node)
-    #   i += 1
 
   print('list_blocks_text_nodes')
   print(list_blocks_text_nodes)
+
+  
 
   # TODO: validate for unordered lists
 
