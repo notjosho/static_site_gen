@@ -209,11 +209,16 @@ def markdown_to_html_node(markdown_text):
 
 def text_to_children(text):
   text_nodes = separate_text_based_on_markdown(text)
-  html_nodes = []
+  nodes = []
   for text_node in text_nodes:
-    html_nodes.append(text_node_to_html_node(text_node))
-  return html_nodes
-
+    temp_node = text_node
+    if text_node.text_type != TextType.TEXT:
+      temp_node = text_node_to_leaf_node(text_node)
+    nodes.append(temp_node)
+  print(nodes)
+  if len(nodes) > 1:
+    return nodes
+  return None
 
 def list_blocks_to_html_nodes(list_blocks_text_nodes):
   html_nodes = []
@@ -233,7 +238,11 @@ def list_blocks_to_html_nodes(list_blocks_text_nodes):
         html_node_parent.tag = list_type_map[current_type]
         html_node_parent.children = []
         list_counter += 1
-      html_node_parent.children.append(text_node_to_html_node(text_node))
+      ## TODO: refactor this with the below application :3
+      children_nodes_list = text_to_children(text_node.text)
+      html_node_parent.children.append(factory_text_node_to_html_node(text_node, children_nodes_list))
+      if children_nodes_list:
+        html_node_parent.value = None
 
       if (index + 1 < len(list_blocks_text_nodes) and 
         list_blocks_text_nodes[index + 1].text_type != current_type):
@@ -242,7 +251,14 @@ def list_blocks_to_html_nodes(list_blocks_text_nodes):
         list_counter = 0
       continue
 
-    html_nodes.append(text_node_to_html_node(text_node))
+    ## TODO: refactor this with the above application :3
+    children_nodes = text_to_children(text_node.text)
+    html_node = factory_text_node_to_html_node(text_node, children_nodes)
+
+    if children_nodes:
+      html_node.value = None
+
+    html_nodes.append(html_node)
 
     print('---------------------------->separate_text_based_on_markdown(html_node.value)')
 
@@ -252,13 +268,17 @@ def list_blocks_to_html_nodes(list_blocks_text_nodes):
   print(html_nodes)
   
   print('html_nodes2')
-  print([text_node_to_html_node(text_node) for text_node in list_blocks_text_nodes])
+  print([text_node_to_leaf_node(text_node) for text_node in list_blocks_text_nodes])
 
   print(wrapper_html_nodes_to_tags(html_nodes))
 
   return list_blocks_text_nodes
 
 def html_nodes_to_html_tags(node):
+
+  if isinstance(node, TextNode):
+    return f'{node.text}'
+
   if not node.children:
     return f'<{node.tag}>{node.value}</{node.tag}>'
   
@@ -307,7 +327,12 @@ def markdown_to_text_node(markdown_tuple):
   return TextNode(markdown_text, TextType.TEXT)
 
 
-def text_node_to_html_node(text_node):
+def factory_text_node_to_html_node(text_node, children=None):
+  if children is None:
+    return text_node_to_leaf_node(text_node)
+  return text_node_to_html_node(text_node, children)
+
+def text_node_to_leaf_node(text_node):
   match(text_node.text_type):
     case TextType.TEXT:
       return LeafNode("p", text_node.text)
@@ -327,6 +352,29 @@ def text_node_to_html_node(text_node):
       return LeafNode("a", text_node.text, {"href": text_node.url})
     case TextType.IMAGE:
       return LeafNode("img", text_node.text, {"src": text_node.url, "alt": text_node.text})
+    case _:
+      raise ValueError(f"Invalid text type: {text_node.text_type}")
+
+def text_node_to_html_node(text_node, children):
+  match(text_node.text_type):
+    case TextType.TEXT:
+      return HTMLNode("p", text_node.text, children)
+    case TextType.HEADING:
+      return HTMLNode("h1", text_node.text, children)
+    case TextType.BOLD:
+      return HTMLNode("b", text_node.text, children)
+    case TextType.ITALIC:
+      return HTMLNode("i", text_node.text, children)
+    case TextType.CODE:
+      return HTMLNode("code", text_node.text, children)
+    case TextType.UNORDERED_LIST_ITEM:
+      return HTMLNode("li", text_node.text, children)
+    case TextType.ORDERED_LIST_ITEM:
+      return HTMLNode("li", text_node.text, children)
+    case TextType.LINK:
+      return HTMLNode("a", text_node.text, children, {"href": text_node.url})
+    case TextType.IMAGE:
+      return HTMLNode("img", text_node.text, children, {"src": text_node.url, "alt": text_node.text})
     case _:
       raise ValueError(f"Invalid text type: {text_node.text_type}")
 
