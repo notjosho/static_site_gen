@@ -8,6 +8,11 @@ class TextType(Enum):
   LINK = "links"
   IMAGE = "images"
   HEADING = "heading"
+  HEADING_2 = "heading_2"
+  HEADING_3 = "heading_3"
+  HEADING_4 = "heading_4"
+  HEADING_5 = "heading_5"
+  HEADING_6 = "heading_6"
   UNORDERED_LIST_ITEM = "unordered_list_item"
   ORDERED_LIST_ITEM = "ordered_list_item"
 
@@ -29,6 +34,11 @@ class TextNode:
 class TextTypeMarkdown(Enum):
   PARAGRAPH = "paragraph"
   HEADING = "heading"
+  HEADING_2 = "heading_2"
+  HEADING_3 = "heading_3"
+  HEADING_4 = "heading_4"
+  HEADING_5 = "heading_5"
+  HEADING_6 = "heading_6"
   CODE = "code"
   QUOTE = "quote"
   UNORDERED_LIST_ITEM = "unordered_list_item"

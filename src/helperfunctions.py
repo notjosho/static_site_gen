@@ -88,7 +88,7 @@ def separate_text_based_on_markdown(text):
   text_nodes = split_nodes_link(initial_text_node_lst)
   text_nodes_images = split_nodes_images(text_nodes)
   text_nodes_bold = split_nodes_delimiter(text_nodes_images, '**', TextType.BOLD)
-  text_nodes_italic = split_nodes_delimiter(text_nodes_bold, '*', TextType.ITALIC)
+  text_nodes_italic = split_nodes_delimiter(text_nodes_bold, '_', TextType.ITALIC)
   text_nodes_code = split_nodes_delimiter(text_nodes_italic, '`', TextType.CODE)
   return text_nodes_code
 
@@ -134,6 +134,24 @@ def match_text_regex_list(text, regex):
 
   return True, list_text[0]
 
+def matchHeader(text):
+  result = re.search(r"^#{1,6}\s", text)
+  print(f"result: {len(result[0].strip())}")
+  headerNumber = len(result[0].strip())
+  match headerNumber:
+    case 2:
+      return TextTypeMarkdown.HEADING_2
+    case 3:
+      return TextTypeMarkdown.HEADING_3
+    case 4:
+      return TextTypeMarkdown.HEADING_4
+    case 5:
+      return TextTypeMarkdown.HEADING_5
+    case 6:
+      return TextTypeMarkdown.HEADING_6
+    case _: 
+      return TextTypeMarkdown.HEADING
+    
 def block_to_block_type(text):
   print('----->block_to_block_type')
   print(text)
@@ -144,11 +162,15 @@ def block_to_block_type(text):
 
   [is_type_heading, list_text_heading] = match_text_regex_list(text, r"^#{1,6}\s(.*)")
   if is_type_heading:
-    return TextTypeMarkdown.HEADING, list_text_heading
+    return matchHeader(text), list_text_heading
 
   [is_type_code, list_text_code] = match_text_regex_list(text, r"^```(.*)```$")
   if is_type_code:
     return TextTypeMarkdown.CODE, list_text_code
+  
+  [is_type_italics, list_text_italics] = match_text_regex_list(text, r"^_(.*)_$")
+  if is_type_italics:
+    return TextTypeMarkdown.ITALICS, list_text_italics
 
   [is_type_quote, list_text_quote] = match_text_regex_list(text, r"^\>(.*)")
   if is_type_quote:
@@ -277,15 +299,15 @@ def list_blocks_to_html_nodes(list_blocks_text_nodes):
 def html_nodes_to_html_tags(node):
 
   if isinstance(node, TextNode):
-    return f'{node.text}'
+    return node.text
 
   if not node.children:
-    return f'<{node.tag}>{node.value}</{node.tag}>'
+    return node.to_html()
   
   children_html = ''
   for child in node.children:
     children_html += html_nodes_to_html_tags(child)
-
+  
   return f'<{node.tag}>{children_html}</{node.tag}>'
 
 def wrapper_html_nodes_to_tags(html_nodes):
@@ -293,6 +315,25 @@ def wrapper_html_nodes_to_tags(html_nodes):
   for node in html_nodes:
     tags += html_nodes_to_html_tags(node)
   return f'<div>{tags}</div>'
+
+def markdown_to_text_node_heading(markdown_tuple):
+  [markdown_type, markdown_text] = markdown_tuple 
+  
+  match(markdown_type):
+    case TextTypeMarkdown.HEADING:
+      return TextNode(markdown_text, TextType.HEADING)
+    case TextTypeMarkdown.HEADING_2:
+      return TextNode(markdown_text, TextType.HEADING_2)
+    case TextTypeMarkdown.HEADING_3:
+      return TextNode(markdown_text, TextType.HEADING_3)
+    case TextTypeMarkdown.HEADING_4:
+      return TextNode(markdown_text, TextType.HEADING_4)
+    case TextTypeMarkdown.HEADING_5:
+      return TextNode(markdown_text, TextType.HEADING_5)
+    case TextTypeMarkdown.HEADING_6:
+      return TextNode(markdown_text, TextType.HEADING_6)
+    case _:
+      return None
 
 def markdown_to_text_node(markdown_tuple):
   [markdown_type, markdown_text] = markdown_tuple 
@@ -303,8 +344,8 @@ def markdown_to_text_node(markdown_tuple):
   if markdown_type == TextTypeMarkdown.CODE:
     return TextNode(markdown_text, TextType.CODE)
 
-  if markdown_type == TextTypeMarkdown.HEADING:
-    return TextNode(markdown_text, TextType.HEADING)
+  if markdown_to_text_node_heading(markdown_tuple):
+    return markdown_to_text_node_heading(markdown_tuple)
 
   if markdown_type == TextTypeMarkdown.LINK:
     return TextNode(markdown_text, TextType.LINK)
@@ -326,7 +367,6 @@ def markdown_to_text_node(markdown_tuple):
    
   return TextNode(markdown_text, TextType.TEXT)
 
-
 def factory_text_node_to_html_node(text_node, children=None):
   if children is None:
     return text_node_to_leaf_node(text_node)
@@ -338,6 +378,16 @@ def text_node_to_leaf_node(text_node):
       return LeafNode("p", text_node.text)
     case TextType.HEADING:
       return LeafNode("h1", text_node.text)
+    case TextType.HEADING_2:
+      return LeafNode("h2", text_node.text)
+    case TextType.HEADING_3:
+      return LeafNode("h3", text_node.text)
+    case TextType.HEADING_4:
+      return LeafNode("h4", text_node.text)
+    case TextType.HEADING_5:
+      return LeafNode("h5", text_node.text)
+    case TextType.HEADING_6:
+      return LeafNode("h6", text_node.text)
     case TextType.BOLD:
       return LeafNode("b", text_node.text)
     case TextType.ITALIC:

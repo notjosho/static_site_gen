@@ -12,6 +12,10 @@ Plain text paragraph here.
 
 # Header one
 
+## Header two
+
+### Header three
+
 This is **bolded** paragraph
 text in a p
 tag here
