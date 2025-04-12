@@ -114,7 +114,7 @@ def match_ordered_list(text):
   list_text = []
 
   for line in text_split:
-    if line[0] == str(count) and line[1] == '.' and line[2] == ' ':
+    if line != '' and line[0] == str(count) and line[1] == '.' and line[2] == ' ':
       count += 1
       list_text.append(line[3:])
       continue
@@ -244,7 +244,7 @@ def list_blocks_to_html_nodes(list_blocks_text_nodes):
       if children_nodes_list:
         html_node_parent.value = None
 
-      if (index + 1 < len(list_blocks_text_nodes) and 
+      if (index + 1 < len(list_blocks_text_nodes) and
         list_blocks_text_nodes[index + 1].text_type != current_type):
         html_nodes.append(html_node_parent)
         html_node_parent = None
