@@ -15,7 +15,7 @@ class TestBlockToBlockType(unittest.TestCase):
                  '1. asdf\n2. asdf2\n3. asdf 3\n4. asdf 4']
 
     expected_types = [TextTypeMarkdown.PARAGRAPH, 
-                      TextTypeMarkdown.CODE, 
+                      TextTypeMarkdown.CODE_BLOCK, 
                       TextTypeMarkdown.QUOTE, 
                       TextTypeMarkdown.UNORDERED_LIST_ITEM, 
                       TextTypeMarkdown.UNORDERED_LIST_ITEM, 
@@ -29,7 +29,7 @@ class TestBlockToBlockType(unittest.TestCase):
       )
 
   def test_all_paragraphs(self):
-    text_list = ['asdf', '``def function():``` \n```  pass```', 
+    text_list = ['```def function() \n pass```', 
                  ' something\n> something2\n> something3', 
                  ' asdf\n* asdf2\n* asdf3', 
                  ' asdf\n- asdf2\n- asdf3',
@@ -37,7 +37,7 @@ class TestBlockToBlockType(unittest.TestCase):
                  '1. asdf\n2. asdf2\n. asdf 3\n4. asdf 4',
                  '1. asdf\n4. asdf2\n3. asdf 3\n4. asdf 4']
 
-    expected_types = [TextTypeMarkdown.PARAGRAPH, 
+    expected_types = [TextTypeMarkdown.CODE_BLOCK, 
                       TextTypeMarkdown.PARAGRAPH, 
                       TextTypeMarkdown.PARAGRAPH, 
                       TextTypeMarkdown.PARAGRAPH, 
@@ -54,7 +54,6 @@ class TestBlockToBlockType(unittest.TestCase):
 
   def test_paragraphs_markdown_symbols_in_the_middle_of_the_string(self):
     text_list = ['asdf', 
-                 'asdf```def function():``` \n```  pass```', 
                  '> something\n > something2\n> something3', 
                  '* asdf\n * asdf2\n* asdf3', 
                  '- asdf\nasdf2 - \n- asdf3',

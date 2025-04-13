@@ -90,7 +90,7 @@ def main():
 
   # print('<---block_to_block_type')
 
-  markdown_to_html_node(markdown_text)
+  print(markdown_to_html_node(markdown_text))
 
 
 if __name__ == '__main__':

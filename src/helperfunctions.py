@@ -84,7 +84,8 @@ def split_nodes_link(old_nodes):
   return split_nodes_general(old_nodes, r"(?<!\!)(\[.*?\]\(.*?\))", TextType.LINK)
   
 def separate_text_based_on_markdown(text): 
-  initial_text_node_lst = [TextNode(text, TextType.TEXT)]
+  no_jump_lines_text = re.search(r'^\n*(.*?)\n*$', text, re.DOTALL).group(1)
+  initial_text_node_lst = [TextNode(no_jump_lines_text, TextType.TEXT)]
   text_nodes = split_nodes_link(initial_text_node_lst)
   text_nodes_images = split_nodes_images(text_nodes)
   text_nodes_bold = split_nodes_delimiter(text_nodes_images, '**', TextType.BOLD)
@@ -93,7 +94,7 @@ def separate_text_based_on_markdown(text):
   return text_nodes_code
 
 def markdown_to_blocks(markdown):
-  lines = markdown.split('\n')
+  lines = markdown.split('\n\n')
   total_lines_lst = []
   lines_lst = []
 
@@ -152,9 +153,13 @@ def matchHeader(text):
     case _: 
       return TextTypeMarkdown.HEADING
     
+
+
 def block_to_block_type(text):
-  print('----->block_to_block_type')
-  print(text)
+  matches_code_block = re.search(r"\n*```\n*(.*?)\n*```\n*", text, re.DOTALL)
+  if matches_code_block:
+    return TextTypeMarkdown.CODE_BLOCK, matches_code_block.group(1)
+  
   list_separate_text_nodes = separate_text_based_on_markdown(text)
   if (len(list_separate_text_nodes) > 1):
     print("---------------->len(list_separate_text_nodes) > 1")
@@ -164,9 +169,6 @@ def block_to_block_type(text):
   if is_type_heading:
     return matchHeader(text), list_text_heading
 
-  [is_type_code, list_text_code] = match_text_regex_list(text, r"^```(.*)```$")
-  if is_type_code:
-    return TextTypeMarkdown.CODE, list_text_code
   
   [is_type_italics, list_text_italics] = match_text_regex_list(text, r"^_(.*)_$")
   if is_type_italics:
@@ -200,6 +202,7 @@ def get_index_from_ordered_list_item(text):
   digit = match_text_regex_list(text, r"^\d+\.\s")
   print(digit)
 
+
 def markdown_to_html_node(markdown_text):
   markdown_list = markdown_to_list(markdown_text)
 
@@ -226,7 +229,7 @@ def markdown_to_html_node(markdown_text):
   # TODO: validate for unordered lists
 
   # TODO: convert to HTML Nodes
-  list_blocks_to_html_nodes(list_blocks_text_nodes)
+  return list_blocks_to_html_nodes(list_blocks_text_nodes)
 
 
 def text_to_children(text):
@@ -250,9 +253,13 @@ def list_blocks_to_html_nodes(list_blocks_text_nodes):
     TextType.UNORDERED_LIST_ITEM: 'ul',
     TextType.ORDERED_LIST_ITEM: 'ol'
   }
-
+  
   for index, text_node in enumerate(list_blocks_text_nodes):
     current_type = text_node.text_type
+    if current_type == TextType.CODE_BLOCK:
+      html_nodes.append(factory_text_node_to_html_node(text_node, text_node))
+      print(html_nodes[0])
+      continue
 
     if current_type in list_type_map:
       if list_counter == 0:
@@ -292,29 +299,29 @@ def list_blocks_to_html_nodes(list_blocks_text_nodes):
   print('html_nodes2')
   print([text_node_to_leaf_node(text_node) for text_node in list_blocks_text_nodes])
 
-  print(wrapper_html_nodes_to_tags(html_nodes))
 
-  return list_blocks_text_nodes
+  return wrapper_html_nodes_to_tags(html_nodes)
 
 def html_nodes_to_html_tags(node):
 
   if isinstance(node, TextNode):
     return node.text
 
-  if not node.children:
+  if node.children is None:
     return node.to_html()
   
   children_html = ''
   for child in node.children:
     children_html += html_nodes_to_html_tags(child)
-  
+
   return f'<{node.tag}>{children_html}</{node.tag}>'
 
 def wrapper_html_nodes_to_tags(html_nodes):
   tags = ''
   for node in html_nodes:
     tags += html_nodes_to_html_tags(node)
-  return f'<div>{tags}</div>'
+
+  return " ".join(f'<div>{tags}</div>'.strip().split('\n'))
 
 def markdown_to_text_node_heading(markdown_tuple):
   [markdown_type, markdown_text] = markdown_tuple 
@@ -343,6 +350,9 @@ def markdown_to_text_node(markdown_tuple):
 
   if markdown_type == TextTypeMarkdown.CODE:
     return TextNode(markdown_text, TextType.CODE)
+  
+  if markdown_type == TextTypeMarkdown.CODE_BLOCK:
+    return TextNode(markdown_text, TextType.CODE_BLOCK)
 
   if markdown_to_text_node_heading(markdown_tuple):
     return markdown_to_text_node_heading(markdown_tuple)
@@ -394,6 +404,8 @@ def text_node_to_leaf_node(text_node):
       return LeafNode("i", text_node.text)
     case TextType.CODE:
       return LeafNode("code", text_node.text)
+    case TextType.CODE_BLOCK:
+      return LeafNode("pre", text_node.text)
     case TextType.UNORDERED_LIST_ITEM:
       return LeafNode("li", text_node.text)
     case TextType.ORDERED_LIST_ITEM:
@@ -417,6 +429,8 @@ def text_node_to_html_node(text_node, children):
       return HTMLNode("i", text_node.text, children)
     case TextType.CODE:
       return HTMLNode("code", text_node.text, children)
+    case TextType.CODE_BLOCK:
+      return HTMLNode("pre", None, [LeafNode('code', children.text)])
     case TextType.UNORDERED_LIST_ITEM:
       return HTMLNode("li", text_node.text, children)
     case TextType.ORDERED_LIST_ITEM:

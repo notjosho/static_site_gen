@@ -5,7 +5,7 @@ from textnode import TextNode, TextType
 
 class TestSeparateTextBasedOnMarkDownFn(unittest.TestCase):
   def test_separate_text_based_on_markdown_all_delimiters(self):
-    text = "This is **text** with an *italic* word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+    text = "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
     separated_nodes_based_on_markdown = separate_text_based_on_markdown(text)
 
     self.assertEqual(
@@ -41,7 +41,7 @@ class TestSeparateTextBasedOnMarkDownFn(unittest.TestCase):
     )
 
   def test_separate_text_based_on_markdown_some_delimiters_repeated(self):
-    text = "This is *text* with an *italic* word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a ![boot dev image](https://boot.dev)"
+    text = "This is _text_ with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a ![boot dev image](https://boot.dev)"
     separated_nodes_based_on_markdown = separate_text_based_on_markdown(text)
 
     self.assertEqual(
