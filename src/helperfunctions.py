@@ -12,7 +12,6 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
     try:
       delimiters_nodes.extend(single_split_node_delimiter(old_node, delimiter, text_type))
     except ValueError as e:
-      # print(f"ValueError: {e}")
       delimiters_nodes.append(old_node)
       continue
   return delimiters_nodes
@@ -137,7 +136,6 @@ def match_text_regex_list(text, regex):
 
 def matchHeader(text):
   result = re.search(r"^#{1,6}\s", text)
-  print(f"result: {len(result[0].strip())}")
   headerNumber = len(result[0].strip())
   match headerNumber:
     case 2:
@@ -160,11 +158,6 @@ def block_to_block_type(text):
   if matches_code_block:
     return TextTypeMarkdown.CODE_BLOCK, matches_code_block.group(1)
   
-  list_separate_text_nodes = separate_text_based_on_markdown(text)
-  if (len(list_separate_text_nodes) > 1):
-    print("---------------->len(list_separate_text_nodes) > 1")
-    print(list_separate_text_nodes)
-
   [is_type_heading, list_text_heading] = match_text_regex_list(text, r"^#{1,6}\s(.*)")
   if is_type_heading:
     return matchHeader(text), list_text_heading
@@ -180,27 +173,17 @@ def block_to_block_type(text):
 
   [is_type_unordered_list, list_text_unordered_list] = match_text_regex_list(text, r"^[-*]\s(.*)")
   if is_type_unordered_list:
-    print("list_text_unordered_list")
-    print(list_text_unordered_list)
     return TextTypeMarkdown.UNORDERED_LIST_ITEM, list_text_unordered_list
     
 
-  print('###########################text')
-  print(text)
   [is_type_ordered_list, list_text_ordered_list] = match_ordered_list(text)
   if is_type_ordered_list:
-    print('******--------->ordered_list')
-    print(list_text_ordered_list)
     return TextTypeMarkdown.ORDERED_LIST_ITEM, list_text_ordered_list
 
   return TextTypeMarkdown.PARAGRAPH, text
 
 def markdown_to_list(markdown_text):
   return markdown_text.split('\n\n')
-
-def get_index_from_ordered_list_item(text):
-  digit = match_text_regex_list(text, r"^\d+\.\s")
-  print(digit)
 
 
 def markdown_to_html_node(markdown_text):
@@ -221,8 +204,6 @@ def markdown_to_html_node(markdown_text):
 
       list_blocks_text_nodes.append(markdown_to_text_node(tuple_block))
 
-  print('list_blocks_text_nodes')
-  print(list_blocks_text_nodes)
 
 
 
@@ -240,7 +221,6 @@ def text_to_children(text):
     if text_node.text_type != TextType.TEXT:
       temp_node = text_node_to_leaf_node(text_node)
     nodes.append(temp_node)
-  print(nodes)
   if len(nodes) > 1:
     return nodes
   return None
@@ -258,7 +238,6 @@ def list_blocks_to_html_nodes(list_blocks_text_nodes):
     current_type = text_node.text_type
     if current_type == TextType.CODE_BLOCK:
       html_nodes.append(factory_text_node_to_html_node(text_node, text_node))
-      print(html_nodes[0])
       continue
 
     if current_type in list_type_map:
@@ -289,15 +268,10 @@ def list_blocks_to_html_nodes(list_blocks_text_nodes):
 
     html_nodes.append(html_node)
 
-    print('---------------------------->separate_text_based_on_markdown(html_node.value)')
 
 
 
-  print('------>html_nodes')
-  print(html_nodes)
   
-  print('html_nodes2')
-  print([text_node_to_leaf_node(text_node) for text_node in list_blocks_text_nodes])
 
 
   return wrapper_html_nodes_to_tags(html_nodes)
@@ -344,9 +318,6 @@ def markdown_to_text_node_heading(markdown_tuple):
 
 def markdown_to_text_node(markdown_tuple):
   [markdown_type, markdown_text] = markdown_tuple 
-  print("markdown")
-  print(markdown_type)
-  print(markdown_text)
 
   if markdown_type == TextTypeMarkdown.CODE:
     return TextNode(markdown_text, TextType.CODE)
