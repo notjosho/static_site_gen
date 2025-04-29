@@ -4,7 +4,7 @@ import shutil
 PUBLIC_PATH = './public'
 STATIC_PATH = './src/static'
 
-def make_dir(path):
+def create_public_dir(path):
 	if os.path.exists(path):
 		print("public dir found")
 		print(f"deleting {PUBLIC_PATH}...")
@@ -18,7 +18,6 @@ def make_dir(path):
 	print(f"files copied successfully")
 
 def copy_directory_to_path(path, destination_path):
-
 	for file in os.listdir(path):
 		full_path = os.path.join(path, file)
 		full_path_dest = os.path.join(destination_path, file)

@@ -3,7 +3,7 @@ from helper_vars import markdown
 from helper_text import markdown_text
 import os
 
-from directories import PUBLIC_PATH, make_dir
+from directories import PUBLIC_PATH, create_public_dir
 
 
 
@@ -13,7 +13,7 @@ def main():
   # It should copy all files and subdirectories, nested files, etc.
   # I recommend logging the path of each file you copy, so you can see what's happening as you run and debug your code.
   print(markdown_to_html_node(markdown_text))
-  make_dir(PUBLIC_PATH)
+  create_public_dir(PUBLIC_PATH)
   
 if __name__ == '__main__':
   main()
