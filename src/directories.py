@@ -27,9 +27,25 @@ def create_dir_copy(from_path, dest_path):
 		print(f"deleting {from_path}...")
 		shutil.rmtree(f"{from_path}/")
 		print(f"{from_path} deleted successfully")
+
 	print("creating public dir...")
 	os.mkdir(from_path)
 	print(f"{from_path} dir created")
 	print(f"copying directories and files from {from_path} to {dest_path}...")
 	copy_directory_to_path(dest_path, from_path)
 	print(f"files copied successfully")
+
+def create_file_add_text(file_name, path, text):
+	file_path = os.path.join(path, file_name)
+	if os.path.exists(file_path):
+		print(f"{file_path} dir found")
+		print(f"deleting {file_path}...")
+		os.remove(file_path)
+		print(f"{file_path} deleted successfully")
+
+	print(f"creating file to {path}...")
+
+	with open(file_path, 'w') as file:
+		file.write(text)
+
+	print(f"file created successfully")

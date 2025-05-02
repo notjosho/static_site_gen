@@ -42,7 +42,10 @@ def extract_markdown_links(text):
   return re.findall(r"(?<!\!)\[(.*?)\]\((.*?)\)", text)
 
 def extract_title(text):
-  return re.findall(r"/^#\s(.*)/gm", text)
+  match = re.search(r"^#\s(.*)", text, re.MULTILINE)
+  if match:
+    return match.group(1).strip()
+  return ""
 
 def split_nodes_general(old_nodes, regex, text_type):
   text_node_list = []
