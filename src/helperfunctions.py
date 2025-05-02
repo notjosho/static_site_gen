@@ -41,6 +41,9 @@ def extract_markdown_images(text):
 def extract_markdown_links(text):
   return re.findall(r"(?<!\!)\[(.*?)\]\((.*?)\)", text)
 
+def extract_title(text):
+  return re.findall(r"/^#\s(.*)/gm", text)
+
 def split_nodes_general(old_nodes, regex, text_type):
   text_node_list = []
   mapped_nodes = []

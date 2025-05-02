@@ -4,18 +4,8 @@ import shutil
 PUBLIC_PATH = './public'
 STATIC_PATH = './src/static'
 
-def create_public_dir(path):
-	if os.path.exists(path):
-		print("public dir found")
-		print(f"deleting {PUBLIC_PATH}...")
-		shutil.rmtree(f"{PUBLIC_PATH}/")
-		print(f"{PUBLIC_PATH} deleted successfully")
-	print("creating public dir...")
-	os.mkdir(path)
-	print("public dir created")
-	print(f"copying directories and files from {PUBLIC_PATH} to {STATIC_PATH}...")
-	copy_directory_to_path(STATIC_PATH, PUBLIC_PATH)
-	print(f"files copied successfully")
+def create_public_dir():
+	create_dir_copy(PUBLIC_PATH, STATIC_PATH)
 
 def copy_directory_to_path(path, destination_path):
 	for file in os.listdir(path):
@@ -30,3 +20,16 @@ def copy_directory_to_path(path, destination_path):
 		os.mkdir(full_path_dest)
 		print(f"copied dir: {full_path_dest}")
 		copy_directory_to_path(full_path, full_path_dest)
+
+def create_dir_copy(from_path, dest_path):
+	if os.path.exists(from_path):
+		print(f"{from_path} dir found")
+		print(f"deleting {from_path}...")
+		shutil.rmtree(f"{from_path}/")
+		print(f"{from_path} deleted successfully")
+	print("creating public dir...")
+	os.mkdir(from_path)
+	print(f"{from_path} dir created")
+	print(f"copying directories and files from {from_path} to {dest_path}...")
+	copy_directory_to_path(dest_path, from_path)
+	print(f"files copied successfully")

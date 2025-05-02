@@ -4,16 +4,14 @@ from helper_text import markdown_text
 import os
 
 from directories import PUBLIC_PATH, create_public_dir
+from src.titlefunctions import generate_page
 
 
 
 def main():
-  # Write a recursive function that copies all the contents from a source directory to a destination directory (in our case, static to public)
-  # ----------It should first delete all the contents of the destination directory (public) to ensure that the copy is clean. 
-  # It should copy all files and subdirectories, nested files, etc.
-  # I recommend logging the path of each file you copy, so you can see what's happening as you run and debug your code.
   print(markdown_to_html_node(markdown_text))
-  create_public_dir(PUBLIC_PATH)
+  # create_public_dir()
+  generate_page('./src/', './src/template.html', '')
   
 if __name__ == '__main__':
   main()
