@@ -9,7 +9,7 @@ from titlefunctions import generate_page
 
 
 def main():
-  print(markdown_to_html_node(markdown_text))
+  # print(markdown_to_html_node(markdown_text))
   # create_public_dir()
   generate_page('./src/content/index.md', './src/template.html', './public/index.html')
   

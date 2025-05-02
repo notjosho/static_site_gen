@@ -181,10 +181,13 @@ def block_to_block_type(text):
   if is_type_unordered_list:
     return TextTypeMarkdown.UNORDERED_LIST_ITEM, list_text_unordered_list
     
-
   [is_type_ordered_list, list_text_ordered_list] = match_ordered_list(text)
   if is_type_ordered_list:
     return TextTypeMarkdown.ORDERED_LIST_ITEM, list_text_ordered_list
+  
+  [is_type_images_list, list_text_images] = match_text_regex_list(text, r"!\[(.*?)\]\((.*?)\)")
+  if is_type_images_list:
+    return TextTypeMarkdown.IMAGE, list_text_images
 
   return TextTypeMarkdown.PARAGRAPH, text
 
@@ -203,6 +206,10 @@ def markdown_to_html_node(markdown_text):
     for text in blocks:
       text_cleanedup = block_to_block_type(text)
       tuple_block = (type[0], text_cleanedup[1])
+      # could check again
+      if isinstance(text_cleanedup[1], tuple):
+        title, url = text_cleanedup[1] 
+        tuple_block = (type[0], title, url)
 
       if type[0] == TextTypeMarkdown.ORDERED_LIST_ITEM:
         ordered_list_item_text = match_text_regex_list(text, r"^\d+\.\s(.*)")
@@ -266,6 +273,8 @@ def list_blocks_to_html_nodes(list_blocks_text_nodes):
       continue
 
     ## TODO: refactor this with the above application :3
+    # this is returning a tuple instead of the text, but why?
+    print(text_node.text)
     children_nodes = text_to_children(text_node.text)
     html_node = factory_text_node_to_html_node(text_node, children_nodes)
 
@@ -273,12 +282,6 @@ def list_blocks_to_html_nodes(list_blocks_text_nodes):
       html_node.value = None
 
     html_nodes.append(html_node)
-
-
-
-
-  
-
 
   return wrapper_html_nodes_to_tags(html_nodes)
 
@@ -304,7 +307,7 @@ def wrapper_html_nodes_to_tags(html_nodes):
   return " ".join(f'<div>{tags}</div>'.strip().split('\n'))
 
 def markdown_to_text_node_heading(markdown_tuple):
-  [markdown_type, markdown_text] = markdown_tuple 
+  markdown_type, markdown_text, *rest = markdown_tuple
   
   match(markdown_type):
     case TextTypeMarkdown.HEADING:
@@ -323,7 +326,14 @@ def markdown_to_text_node_heading(markdown_tuple):
       return None
 
 def markdown_to_text_node(markdown_tuple):
-  [markdown_type, markdown_text] = markdown_tuple 
+  # markdown_type, markdown_text, url = None, None, None
+  # if len(markdown_tuple) > 2:
+  #   [markdown_type, markdown_text, url] = markdown_tuple
+  # else:
+  #   [markdown_type, markdown_text] = markdown_tuple
+
+  markdown_type, markdown_text, *rest = markdown_tuple + (None,)
+  url = rest[0] if rest else None
 
   if markdown_type == TextTypeMarkdown.CODE:
     return TextNode(markdown_text, TextType.CODE)
@@ -335,10 +345,10 @@ def markdown_to_text_node(markdown_tuple):
     return markdown_to_text_node_heading(markdown_tuple)
 
   if markdown_type == TextTypeMarkdown.LINK:
-    return TextNode(markdown_text, TextType.LINK)
+    return TextNode(markdown_text, TextType.LINK, url)
   
   if markdown_type == TextTypeMarkdown.IMAGE:
-    return TextNode(markdown_text, TextType.IMAGE)
+    return TextNode(markdown_text, TextType.IMAGE, url)
 
   if markdown_type == TextTypeMarkdown.ITALICS:
     return TextNode(markdown_text, TextType.ITALIC)
