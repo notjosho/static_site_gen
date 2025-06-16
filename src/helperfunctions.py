@@ -353,6 +353,9 @@ def markdown_to_text_node(markdown_tuple):
   
   if markdown_type == TextTypeMarkdown.IMAGE:
     return TextNode(markdown_text, TextType.IMAGE, url)
+  
+  if markdown_type == TextTypeMarkdown.QUOTE:
+    return TextNode(markdown_text, TextType.QUOTE)
 
   if markdown_type == TextTypeMarkdown.ITALICS:
     return TextNode(markdown_text, TextType.ITALIC)
@@ -401,6 +404,8 @@ def text_node_to_leaf_node(text_node):
       return LeafNode("li", text_node.text)
     case TextType.ORDERED_LIST_ITEM:
       return LeafNode("li", text_node.text)
+    case TextType.QUOTE:
+      return LeafNode("quote", text_node.text)
     case TextType.LINK:
       return LeafNode("a", text_node.text, {"href": text_node.url})
     case TextType.IMAGE:
@@ -421,8 +426,6 @@ def text_node_to_html_node(text_node, children):
     case TextType.CODE:
       return HTMLNode("code", text_node.text, children)
     case TextType.CODE_BLOCK:
-      html_node = HTMLNode("pre", None, [LeafNode('code', children.text)])
-      print(f"----HTML Node: {html_node}")
       return HTMLNode("pre", None, [LeafNode('code', children.text)])
     case TextType.UNORDERED_LIST_ITEM:
       return HTMLNode("li", text_node.text, children)
