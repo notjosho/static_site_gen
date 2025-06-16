@@ -7,7 +7,6 @@ from directories import PUBLIC_PATH, create_public_dir
 from titlefunctions import generate_page
 
 
-
 def main():
   # print(markdown_to_html_node(markdown_text))
   # create_public_dir()

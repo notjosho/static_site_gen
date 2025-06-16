@@ -5,7 +5,7 @@
       "name": "Python: Current File",
       "type": "python",
       "request": "launch",
-      "program": "./main.sh",
+      "program": "./src/main.py",
       "console": "integratedTerminal",
       "args": [],
       "pythonPath": "${config:python.pythonPath}",

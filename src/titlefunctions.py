@@ -19,6 +19,8 @@ def generate_page(from_path, template_path, dest_path):
 
   # fix this so it returns an html_node and a .to_html()
   html_content = markdown_to_html_node(from_path_str)
+  print("-------------->html_content")
+  print(html_content)
 
   page_title = extract_title(from_path_str)
   print(f"-------->page_title: {page_title}")
@@ -35,6 +37,3 @@ def generate_page(from_path, template_path, dest_path):
   create_file_add_text('index.html', './public', template_replaced_content)
 
   # create_dir_copy(from_path, dest_path)
-
-
-

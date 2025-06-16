@@ -98,8 +98,8 @@ def separate_text_based_on_markdown(text):
   text_nodes_code = split_nodes_delimiter(text_nodes_italic, '`', TextType.CODE)
   return text_nodes_code
 
-def markdown_to_blocks(markdown):
-  lines = markdown.split('\n\n')
+def markdown_to_blocks(markdown_text):
+  lines = markdown_text.split('\n')
   total_lines_lst = []
   lines_lst = []
 
@@ -168,7 +168,6 @@ def block_to_block_type(text):
   if is_type_heading:
     return matchHeader(text), list_text_heading
 
-  
   [is_type_italics, list_text_italics] = match_text_regex_list(text, r"^_(.*)_$")
   if is_type_italics:
     return TextTypeMarkdown.ITALICS, list_text_italics
@@ -199,21 +198,26 @@ def markdown_to_html_node(markdown_text):
   markdown_list = markdown_to_list(markdown_text)
 
   list_blocks_text_nodes = []
-  for mark_down_text in markdown_list:
-    type = block_to_block_type(mark_down_text)
-    blocks = markdown_to_blocks(mark_down_text)
-    
+  for inner_md_text in markdown_list:
+    type, md_text = block_to_block_type(inner_md_text)
+
+    if type == TextTypeMarkdown.CODE_BLOCK:
+      list_blocks_text_nodes.append(TextNode(md_text, TextType.CODE_BLOCK))
+      continue
+
+    blocks = markdown_to_blocks(inner_md_text)
+
     for text in blocks:
       text_cleanedup = block_to_block_type(text)
-      tuple_block = (type[0], text_cleanedup[1])
+      tuple_block = (type, text_cleanedup[1])
       # could check again
       if isinstance(text_cleanedup[1], tuple):
         title, url = text_cleanedup[1] 
-        tuple_block = (type[0], title, url)
+        tuple_block = (type, title, url)
 
-      if type[0] == TextTypeMarkdown.ORDERED_LIST_ITEM:
+      if type == TextTypeMarkdown.ORDERED_LIST_ITEM:
         ordered_list_item_text = match_text_regex_list(text, r"^\d+\.\s(.*)")
-        tuple_block = (type[0], ordered_list_item_text[1])
+        tuple_block = (type, ordered_list_item_text[1])
 
       list_blocks_text_nodes.append(markdown_to_text_node(tuple_block))
 
@@ -226,7 +230,7 @@ def markdown_to_html_node(markdown_text):
   return list_blocks_to_html_nodes(list_blocks_text_nodes)
 
 
-def text_to_children(text):
+def text_to_children(text):  
   text_nodes = separate_text_based_on_markdown(text)
   nodes = []
   for text_node in text_nodes:
@@ -250,7 +254,7 @@ def list_blocks_to_html_nodes(list_blocks_text_nodes):
   for index, text_node in enumerate(list_blocks_text_nodes):
     current_type = text_node.text_type
     if current_type == TextType.CODE_BLOCK:
-      html_nodes.append(factory_text_node_to_html_node(text_node, text_node))
+      html_nodes.append(factory_text_node_to_html_node(TextNode('', TextType.CODE_BLOCK), text_node))
       continue
 
     if current_type in list_type_map:
@@ -417,6 +421,8 @@ def text_node_to_html_node(text_node, children):
     case TextType.CODE:
       return HTMLNode("code", text_node.text, children)
     case TextType.CODE_BLOCK:
+      html_node = HTMLNode("pre", None, [LeafNode('code', children.text)])
+      print(f"----HTML Node: {html_node}")
       return HTMLNode("pre", None, [LeafNode('code', children.text)])
     case TextType.UNORDERED_LIST_ITEM:
       return HTMLNode("li", text_node.text, children)
