@@ -311,7 +311,7 @@ def wrapper_html_nodes_to_tags(html_nodes):
   for node in html_nodes:
     tags += html_nodes_to_html_tags(node)
 
-  return " ".join(f'<div>{tags}</div>'.strip().split('\n'))
+  return "".join(f'<div>{tags}</div>'.strip())
 
 def markdown_to_text_node_heading(markdown_tuple):
   markdown_type, markdown_text, *rest = markdown_tuple
