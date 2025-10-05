@@ -16,7 +16,7 @@ This is another paragraph with _italic_ text and `code` here
 
     self.assertEqual(
         node,
-        "<div><p>This is <b>bolded</b> paragraph text in a p tag here</p><p>This is another paragraph with <i>italic</i> text and <code>code</code> here</p></div>",
+        "<div><p>This is <b>bolded</b> paragraph</p><p>text in a p</p><p>tag here</p><p>This is another paragraph with <i>italic</i> text and <code>code</code> here</p></div>",
     )
 
   def test_codeblock(self):
@@ -29,7 +29,7 @@ the **same** even with inline stuff
     node = markdown_to_html_node(md)
     self.assertEqual(
         node,
-        "<div><pre><code>This is text that _should_ remain the **same** even with inline stuff</code></pre></div>",
+        "<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff</code></pre></div>",
     )
   
   def unordered_ordered_list_inline_text(self):

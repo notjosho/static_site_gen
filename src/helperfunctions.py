@@ -128,7 +128,7 @@ def match_ordered_list(text):
       
   return True, list_text[0]
 
-def match_text_regex_list(text, regex):
+def match_text_regex_list(text, regex, join_lines=False):
   text_split = text.split('\n')
   list_text = []  
 
@@ -138,7 +138,10 @@ def match_text_regex_list(text, regex):
       return False, text_split[0]
     list_text.extend(result)
 
-  return True, list_text[0]
+  if join_lines:
+    return True, '\n'.join(i.strip() for i in list_text)
+  else: 
+    return True, list_text[0]
 
 def matchHeader(text):
   result = re.search(r"^#{1,6}\s", text)
@@ -172,7 +175,7 @@ def block_to_block_type(text):
   if is_type_italics:
     return TextTypeMarkdown.ITALICS, list_text_italics
 
-  [is_type_quote, list_text_quote] = match_text_regex_list(text, r"^\>(.*)")
+  [is_type_quote, list_text_quote] = match_text_regex_list(text, r"^\>(.*)", join_lines=True)
   if is_type_quote:
     return TextTypeMarkdown.QUOTE, list_text_quote
 
@@ -193,16 +196,19 @@ def block_to_block_type(text):
 def markdown_to_list(markdown_text):
   return markdown_text.split('\n\n')
 
-
 def markdown_to_html_node(markdown_text):
   markdown_list = markdown_to_list(markdown_text)
 
   list_blocks_text_nodes = []
   for inner_md_text in markdown_list:
-    type, md_text = block_to_block_type(inner_md_text)
+    type, list_clean_text = block_to_block_type(inner_md_text)
 
     if type == TextTypeMarkdown.CODE_BLOCK:
-      list_blocks_text_nodes.append(TextNode(md_text, TextType.CODE_BLOCK))
+      list_blocks_text_nodes.append(TextNode(list_clean_text, TextType.CODE_BLOCK))
+      continue
+
+    if type == TextTypeMarkdown.QUOTE:
+      list_blocks_text_nodes.append(TextNode(list_clean_text, TextType.QUOTE))
       continue
 
     blocks = markdown_to_blocks(inner_md_text)
@@ -221,12 +227,6 @@ def markdown_to_html_node(markdown_text):
 
       list_blocks_text_nodes.append(markdown_to_text_node(tuple_block))
 
-
-
-
-  # TODO: validate for unordered lists
-
-  # TODO: convert to HTML Nodes
   return list_blocks_to_html_nodes(list_blocks_text_nodes)
 
 
@@ -254,7 +254,11 @@ def list_blocks_to_html_nodes(list_blocks_text_nodes):
   for index, text_node in enumerate(list_blocks_text_nodes):
     current_type = text_node.text_type
     if current_type == TextType.CODE_BLOCK:
-      html_nodes.append(factory_text_node_to_html_node(TextNode('', TextType.CODE_BLOCK), text_node))
+      html_nodes.append(factory_text_node_to_html_node(TextNode('', current_type), text_node))
+      continue
+    
+    if current_type == TextType.QUOTE:
+      html_nodes.append(factory_text_node_to_html_node(text_node))
       continue
 
     if current_type in list_type_map:
@@ -278,7 +282,6 @@ def list_blocks_to_html_nodes(list_blocks_text_nodes):
 
     ## TODO: refactor this with the above application :3
     # this is returning a tuple instead of the text, but why?
-    print(text_node.text)
     children_nodes = text_to_children(text_node.text)
     html_node = factory_text_node_to_html_node(text_node, children_nodes)
 

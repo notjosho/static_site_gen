@@ -11,12 +11,12 @@ def copy_directory_to_path(path, destination_path):
 	for file in os.listdir(path):
 		full_path = os.path.join(path, file)
 		full_path_dest = os.path.join(destination_path, file)
-		
+
 		if os.path.isfile(full_path):
 			shutil.copy(full_path, full_path_dest)
 			print(f"copied file: {full_path_dest}")
 			return
-		
+
 		os.mkdir(full_path_dest)
 		print(f"copied dir: {full_path_dest}")
 		copy_directory_to_path(full_path, full_path_dest)
