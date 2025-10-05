@@ -298,8 +298,11 @@ def html_nodes_to_html_tags(node):
     return node.to_html()
   
   children_html = ''
-  for child in node.children:
-    children_html += html_nodes_to_html_tags(child)
+  if isinstance(node.children, list):
+    for child in node.children:
+      children_html += html_nodes_to_html_tags(child)
+  else: 
+    children_html += html_nodes_to_html_tags(node.children)
 
   return f'<{node.tag}>{children_html}</{node.tag}>'
 
@@ -419,6 +422,16 @@ def text_node_to_html_node(text_node, children):
       return HTMLNode("p", text_node.text, children)
     case TextType.HEADING:
       return HTMLNode("h1", text_node.text, children)
+    case TextType.HEADING_2:
+      return HTMLNode("h2", text_node.text, children)
+    case TextType.HEADING_3:
+      return HTMLNode("h3", text_node.text, children)
+    case TextType.HEADING_4:
+      return HTMLNode("h4", text_node.text, children)
+    case TextType.HEADING_5:
+      return HTMLNode("h5", text_node.text, children)
+    case TextType.HEADING_6:
+      return HTMLNode("h6", text_node.text, children)
     case TextType.BOLD:
       return HTMLNode("b", text_node.text, children)
     case TextType.ITALIC:
@@ -431,6 +444,8 @@ def text_node_to_html_node(text_node, children):
       return HTMLNode("li", text_node.text, children)
     case TextType.ORDERED_LIST_ITEM:
       return HTMLNode("li", text_node.text, children)
+    case TextType.QUOTE:
+      return HTMLNode("blockquote", text_node.text, children)
     case TextType.LINK:
       return HTMLNode("a", text_node.text, children, {"href": text_node.url})
     case TextType.IMAGE:
