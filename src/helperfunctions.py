@@ -240,7 +240,7 @@ def text_to_children(text):
     nodes.append(temp_node)
   if len(nodes) > 1:
     return nodes
-  return None
+  return nodes[0] if nodes else None
 
 def list_blocks_to_html_nodes(list_blocks_text_nodes):
   html_nodes = []
@@ -405,7 +405,7 @@ def text_node_to_leaf_node(text_node):
     case TextType.ORDERED_LIST_ITEM:
       return LeafNode("li", text_node.text)
     case TextType.QUOTE:
-      return LeafNode("quote", text_node.text)
+      return LeafNode("blockquote", text_node.text)
     case TextType.LINK:
       return LeafNode("a", text_node.text, {"href": text_node.url})
     case TextType.IMAGE:
